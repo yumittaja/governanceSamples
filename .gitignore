@@ -1,0 +1,13 @@
+# Bicep / ARM build outputs
+*.json
+!workbooks/*.json
+
+# Azure CLI / deployment artifacts
+*.zip
+.azure/
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp

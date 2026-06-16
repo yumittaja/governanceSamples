@@ -1,0 +1,497 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "Subscription",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "label": "Subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ]
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "subscription_parameter"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Azure Governance Workbook\n\n**Scope:** `{Subscription:label}`\n\nExecutive view for tag governance, ownership accountability, and FinOps attribution readiness. This version avoids tile-rendering errors by using **single-purpose stat/scorecard sections and bar/table visualizations** instead of unsupported multi-column tile layouts.\n\nMandatory tag baseline: `owner`, `costCenter`, `environment`, `application`, `businessUnit`, `criticality`.\n\n## recommendations\n- **Focus first on missing owner and costCenter**: these are the highest-value tags for accountability and FinOps attribution.\n- **Treat tag debt as an operational backlog**: prioritize resource groups and subscriptions with the most missing owner tags.\n- **Make Resource Group tags the control point**: enforce required tags on Resource Groups, then use Azure Policy remediation to populate resources.\n- **Use this workbook as a monthly platform governance scorecard** for Cloud Center of Excellence, security, and FinOps stakeholders."
+      },
+      "name": "title"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "\nResourceContainers\n| where type == \"microsoft.resources/subscriptions/resourcegroups\"\n| summarize count()\n",
+        "size": 4,
+        "title": "ResourceGroup Count",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "stat",
+        "tileSettings": {
+          "showBorder": false
+        },
+        "graphSettings": {
+          "type": 0
+        },
+        "statSettings": {
+          "valueAggregation": "None",
+          "colorSettings": {
+            "type": "static",
+            "mode": "background",
+            "heatmapPalette": "greenRed",
+            "thresholdsGrid": []
+          },
+          "iconSettings": {
+            "thresholdsGrid": []
+          },
+          "tagText": "",
+          "valueFontStyle": "auto"
+        },
+        "mapSettings": {
+          "locInfo": "AzureLoc",
+          "locInfoColumn": "location",
+          "sizeSettings": "location",
+          "sizeAggregation": "Count",
+          "labelSettings": "location",
+          "legendMetric": "location",
+          "legendAggregation": "Count",
+          "itemColorSettings": null
+        }
+      },
+      "customWidth": "50",
+      "name": "top_tag_debt_subscriptions - Copy - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\n| count",
+        "size": 4,
+        "title": "Resource count",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "stat",
+        "tileSettings": {
+          "showBorder": false
+        },
+        "graphSettings": {
+          "type": 0
+        },
+        "statSettings": {
+          "valueAggregation": "None",
+          "colorSettings": {
+            "type": "static",
+            "mode": "background",
+            "heatmapPalette": "greenRed",
+            "thresholdsGrid": []
+          },
+          "iconSettings": {
+            "thresholdsGrid": []
+          },
+          "tagText": "",
+          "valueFontStyle": "auto"
+        },
+        "mapSettings": {
+          "locInfo": "AzureLoc",
+          "locInfoColumn": "location",
+          "sizeSettings": "location",
+          "sizeAggregation": "Count",
+          "labelSettings": "location",
+          "legendMetric": "location",
+          "legendAggregation": "Count",
+          "itemColorSettings": null
+        }
+      },
+      "customWidth": "50",
+      "name": "top_tag_debt_subscriptions - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\n| project name, location",
+        "size": 0,
+        "title": "Resource locations",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "map",
+        "tileSettings": {
+          "showBorder": false
+        },
+        "graphSettings": {
+          "type": 0
+        },
+        "mapSettings": {
+          "locInfo": "AzureLoc",
+          "locInfoColumn": "location",
+          "sizeSettings": "location",
+          "sizeAggregation": "Count",
+          "labelSettings": "location",
+          "legendMetric": "location",
+          "legendAggregation": "Count",
+          "itemColorSettings": null
+        }
+      },
+      "name": "top_tag_debt_subscriptions"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| summarize resourceCount = count() by subscriptionId, resourceGroup\n| order by resourceCount desc",
+        "size": 0,
+        "title": "Resource count by resource group",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "subscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "resourceGroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ]
+        },
+        "chartSettings": {
+          "xAxis": "res"
+        }
+      },
+      "name": "missing_owner_by_rg"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resourcecontainers\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| summarize Owner = countif(isempty(owner)), CostCenter = countif(isempty(costCenter)), Environment = countif(isempty(environment))\n| project Owner, CostCenter, Environment",
+        "size": 4,
+        "title": "Resource Groups - Missing mandatory tag counts",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "missingOwner"
+          },
+          "showBorder": false
+        }
+      },
+      "name": "executive_action_priorities - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| summarize Owner = countif(isempty(owner)), CostCenter = countif(isempty(costCenter)), Environment = countif(isempty(environment)), Application = countif(isempty(application)), BusinessUnit = countif(isempty(businessUnit)), Criticality = countif(isempty(criticality))\n| project Owner, CostCenter, Environment, Application, BusinessUnit, Criticality",
+        "size": 4,
+        "title": "Resources - Missing mandatory tag counts",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "missingOwner"
+          },
+          "showBorder": false
+        }
+      },
+      "name": "executive_action_priorities"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Tags ",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| summarize resourceCount = count() by environment = iff(isempty(environment), '<missing>', environment)\n| order by resourceCount desc",
+              "size": 4,
+              "title": "Environment distribution",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "environment_distribution"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| summarize resourceCount = count() by costCenter = iff(isempty(costCenter), '<missing>', costCenter)\n| order by resourceCount desc",
+              "size": 4,
+              "title": "cost center distribution",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "resources_by_costcenter"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| summarize resourceCount = count() by owner = iff(isempty(owner), '<missing>', owner)\n| order by resourceCount desc",
+              "size": 4,
+              "title": "Ownership distribution - Resources by owner",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "resources_by_owner"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| summarize resourceCount = count() by application = iff(isempty(application), '<missing>', application)\n| top 25 by resourceCount desc",
+              "size": 4,
+              "title": "Application distribution - Top applications by resource count",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "application_distribution"
+          }
+        ]
+      },
+      "name": "group - 19"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| extend missingTags = strcat(iff(isempty(owner), 'owner; ', ''), iff(isempty(costCenter), 'costCenter; ', ''), iff(isempty(environment), 'environment; ', ''), iff(isempty(application), 'application; ', ''), iff(isempty(businessUnit), 'businessUnit; ', ''), iff(isempty(criticality), 'criticality; ', ''))\n| where isnotempty(missingTags)\n| project name, resourceGroup, type, location, owner, costCenter, environment, application, businessUnit, criticality, missingTags\n| order by resourceGroup asc, name asc",
+        "size": 0,
+        "title": "Resources missing mandatory tags",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "resourceGroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "type",
+              "formatter": 16,
+              "formatOptions": {
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "location",
+              "formatter": 17
+            }
+          ]
+        }
+      },
+      "name": "mandatory_tag_exceptions"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| extend mandatoryTagCount = iff(isnotempty(owner), 1, 0) + iff(isnotempty(costCenter), 1, 0) + iff(isnotempty(environment), 1, 0) + iff(isnotempty(application), 1, 0) + iff(isnotempty(businessUnit), 1, 0) + iff(isnotempty(criticality), 1, 0)\n| extend isCompliant = iff(mandatoryTagCount == 6, 1, 0)\n| summarize totalResources = count(), compliantResources = sum(isCompliant) by subscriptionId\n| extend tagDebtResources = totalResources - compliantResources\n| top 10 by tagDebtResources desc\n| project subscriptionId, tagDebtResources, totalResources, compliantResources",
+        "size": 1,
+        "title": "Top subscriptions by tag debt",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table"
+      },
+      "name": "top_tag_debt_subscriptions"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 2. Governance Risk & Ownership"
+      },
+      "name": "governance"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| where isempty(owner)\n| project subscriptionId, resourceGroup, name, type, location, costCenter, environment, application, businessUnit, criticality\n| order by subscriptionId asc, resourceGroup asc, name asc",
+        "size": 0,
+        "title": "Remediation backlog - Resources missing owner",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table"
+      },
+      "name": "missing_owner_backlog"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 3. FinOps Attribution Readiness"
+      },
+      "name": "finops"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| extend gap = strcat(iff(isempty(costCenter), 'missing costCenter; ', ''), iff(isempty(application), 'missing application; ', ''), iff(isempty(environment), 'missing environment; ', ''))\n| where isnotempty(gap)\n| summarize resources = count() by gap\n| order by resources desc",
+        "size": 4,
+        "title": "FinOps attribution gaps",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table"
+      },
+      "name": "finops_attribution_gaps"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| extend mandatoryTagCount = iff(isnotempty(owner), 1, 0) + iff(isnotempty(costCenter), 1, 0) + iff(isnotempty(environment), 1, 0) + iff(isnotempty(application), 1, 0) + iff(isnotempty(businessUnit), 1, 0) + iff(isnotempty(criticality), 1, 0)\n| extend isCompliant = iff(mandatoryTagCount == 6, 1, 0)\n| summarize totalResources = count(), compliantResources = sum(isCompliant) by type\n| extend tagDebtResources = totalResources - compliantResources\n| extend compliancePct = iff(totalResources == 0, real(null), round(100.0 * todouble(compliantResources) / todouble(totalResources), 2))\n| project type, compliancePct, totalResources, compliantResources, tagDebtResources\n| order by tagDebtResources desc",
+        "size": 0,
+        "title": "Compliance by resource type",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "type",
+              "formatter": 16,
+              "formatOptions": {
+                "showIcon": true
+              }
+            }
+          ]
+        }
+      },
+      "name": "compliance_by_resource_type"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "ResourceContainers\n| where type == 'microsoft.resources/subscriptions/resourcegroups'\n| extend owner = coalesce(tostring(tags['owner']), tostring(tags['Owner']))\n| extend costCenter = coalesce(tostring(tags['costCenter']), tostring(tags['CostCenter']))\n| extend environment = coalesce(tostring(tags['environment']), tostring(tags['Environment']), tostring(tags['env']), tostring(tags['Env']))\n| extend application = coalesce(tostring(tags['application']), tostring(tags['Application']), tostring(tags['ApplicationName']))\n| extend businessUnit = coalesce(tostring(tags['businessUnit']), tostring(tags['BusinessUnit']))\n| extend criticality = coalesce(tostring(tags['criticality']), tostring(tags['Criticality']))\n| project subscriptionId, resourceGroup = name, owner, costCenter, environment, application, businessUnit, criticality\n| order by subscriptionId asc, resourceGroup asc",
+        "size": 0,
+        "title": "Reference - Resource group tag inventory",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "subscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "resourceGroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ]
+        }
+      },
+      "name": "rg_tag_inventory"
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

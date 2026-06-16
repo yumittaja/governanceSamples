@@ -1,4 +1,4 @@
-using './main.bicep'
+using './policies.bicep'
 
 param tags = [
   {

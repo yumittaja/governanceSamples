@@ -1,0 +1,364 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "Subscription",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "label": "Subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ]
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "subscription_parameter"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Azure Security  Workbook\n\n**Scope:** `{Subscription:label}`\n\nWorkbook for Azure for Cloud security posture. This build intentionally uses **ARG-safe flat queries** only: no joins, no `let`, no dynamic cascading parameters. Subscription names are provided by the native **Subscriptions** picker and workbook header; tables preserve `subscriptionId` for query reliability."
+      },
+      "name": "title"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "SecurityResources\n| where type == 'microsoft.security/securescores'\n| where name == 'ascScore'\n| extend secureScorePct = todouble(properties.score.percentage) * 100\n| project subscriptionId, secureScorePct",
+        "size": 4,
+        "title": "Security posture - Secure Score summary",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "tiles",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "subscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "secureScorePct",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "<",
+                    "thresholdValue": "50",
+                    "representation": "4",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "<",
+                    "thresholdValue": "70",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ],
+                "compositeBarSettings": {
+                  "labelText": "",
+                  "columnSettings": []
+                }
+              }
+            }
+          ]
+        },
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "subscriptionId",
+            "formatter": 15,
+            "formatOptions": {
+              "linkTarget": null,
+              "showIcon": true
+            }
+          },
+          "leftContent": {
+            "columnMatch": "secureScorePct",
+            "formatter": 18,
+            "formatOptions": {
+              "thresholdsOptions": "icons",
+              "thresholdsGrid": [
+                {
+                  "operator": "<",
+                  "thresholdValue": "50",
+                  "representation": "4",
+                  "text": "{0}{1}"
+                },
+                {
+                  "operator": "<",
+                  "thresholdValue": "70",
+                  "representation": "2",
+                  "text": "{0}{1}"
+                },
+                {
+                  "operator": "Default",
+                  "thresholdValue": null,
+                  "representation": "success",
+                  "text": "{0}{1}"
+                }
+              ]
+            },
+            "numberFormat": {
+              "unit": 1,
+              "options": {
+                "style": "decimal",
+                "maximumFractionDigits": 2,
+                "maximumSignificantDigits": 3
+              }
+            }
+          },
+          "showBorder": false
+        }
+      },
+      "name": "security_score_summary"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "SecurityResources\n| where type == 'microsoft.security/assessments'\n| where tostring(properties.status.code) == 'Unhealthy'\n| extend severity = coalesce(tostring(properties.metadata.severity), 'Unknown')\n| summarize unhealthyRecommendations = count() by severity\n| order by unhealthyRecommendations desc",
+        "size": 1,
+        "title": "Security recommendations by severity",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "piechart"
+      },
+      "customWidth": "50",
+      "name": "security_recommendations_by_severity"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "SecurityResources\n| where type == 'microsoft.security/assessments'\n| where tostring(properties.status.code) == 'Unhealthy'\n| summarize unhealthyRecommendations = count() by subscriptionId\n| order by unhealthyRecommendations desc",
+        "size": 1,
+        "title": "Security debt - Unhealthy recommendations by subscription",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "subscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ]
+        },
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "subscriptionId",
+            "formatter": 15,
+            "formatOptions": {
+              "linkTarget": null,
+              "showIcon": true
+            }
+          },
+          "leftContent": {
+            "columnMatch": "unhealthyRecommendations",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "style": "decimal",
+                "maximumFractionDigits": 2,
+                "maximumSignificantDigits": 3
+              }
+            }
+          },
+          "showBorder": false
+        },
+        "chartSettings": {
+          "xAxis": "subscriptionId",
+          "yAxis": [
+            "unhealthyRecommendations"
+          ],
+          "xSettings": {
+            "numberFormatSettings": {
+              "unit": 0,
+              "options": {
+                "style": "decimal",
+                "useGrouping": true
+              }
+            }
+          }
+        }
+      },
+      "customWidth": "50",
+      "name": "unhealthy_security_by_subscription"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "\nSecurityResources\n| where type == 'microsoft.security/securescores/securescorecontrols'\n| extend controlName = tostring(properties.displayName)\n| extend unhealthyResourceCount = toint(properties.unhealthyResourceCount)\n| where unhealthyResourceCount > 0\n| summarize totalUnhealthyResources = sum(unhealthyResourceCount)\n    by controlName\n| order by totalUnhealthyResources desc\n",
+        "size": 4,
+        "title": "Secure Score controls - Unhealthy resources by control",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "tiles",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "subscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ]
+        },
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "controlName",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "totalUnhealthyResources",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "style": "decimal",
+                "maximumFractionDigits": 2,
+                "maximumSignificantDigits": 3
+              }
+            }
+          },
+          "showBorder": false
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "controlName",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "totalUnhealthyResources",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        }
+      },
+      "name": "secure_score_controls"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "SecurityResources\n| where type == 'microsoft.security/assessments'\n| where tostring(properties.status.code) == 'Unhealthy'\n| extend recommendationName = tostring(properties.displayName)\n| extend severity = coalesce(tostring(properties.metadata.severity), 'Unknown')\n| summarize affectedResources = count() by recommendationName, severity\n| top 20 by affectedResources desc\n| order by severity",
+        "size": 0,
+        "title": "Top unhealthy Defender recommendations",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "recommendationName",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "severity",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "High",
+                    "representation": "red"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Medium",
+                    "representation": "orange",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "lightBlue",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "$gen_thresholds_severity_1",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "$gen_thresholds_severity_1",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "name": "top_unhealthy_recommendations"
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
